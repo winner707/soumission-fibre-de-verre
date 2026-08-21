@@ -30,7 +30,7 @@ var NOTIFY_EMAILS = ['otmatechinc@gmail.com'];
  * A remplir avec le domaine final une fois le site en ligne, par ex. :
  *   ['votre-site.hostingersite.com']
  */
-var ALLOWED_HOSTS = [];
+var ALLOWED_HOSTS = ['blueviolet-loris-711681.hostingersite.com'];
 
 var HEADERS = [
   'Timestamp',
@@ -208,7 +208,7 @@ function testAppend() {
         message: 'Test automatique. Vous pouvez supprimer cette ligne.',
         source: 'Landing Funnel',
         language: 'FR',
-        pageUrl: 'https://exemple.com/'
+        pageUrl: 'https://blueviolet-loris-711681.hostingersite.com/'
       })
     }
   };
