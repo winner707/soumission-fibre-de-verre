@@ -19,3 +19,10 @@ DirectoryIndex index.html
 <IfModule mod_mime.c>
   AddType image/webp .webp
 </IfModule>
+
+# Les fichiers de travail ne doivent pas etre servis publiquement
+# (le depot entier est deploye dans public_html).
+<FilesMatch "\.(md|gs|json|yml|yaml)$">
+  Require all denied
+</FilesMatch>
+RedirectMatch 404 /\.git
