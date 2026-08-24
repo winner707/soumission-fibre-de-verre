@@ -11,7 +11,6 @@ Tout le paramétrage technique se fait dans `assets/js/main.js`, objet `CONFIG` 
 - [ ] Un lead de test arrivé dans le Sheet **et** dans la boîte courriel
 - [ ] **`CONFIG.ga4`** rempli — sinon aucune donnée d'audience
 - [ ] **`CONFIG.googleAdsConversion`** rempli — sinon Google optimise à l'aveugle
-- [ ] **`CONFIG.metaPixel`** rempli si vous faites du Meta
 - [ ] Un vrai nom de domaine à la place de `blueviolet-loris-711681.hostingersite.com`
 
 > Tant qu'un identifiant est vide, **aucun script tiers n'est chargé** et aucun cookie n'est posé.
@@ -149,16 +148,13 @@ n'atteint le seuil d'apprentissage d'aucune des deux plateformes.
 | Argument | Facture de chauffage, subventions | Esthétique, prestige, tenue au soleil, zéro entretien |
 | Format | Image + texte | **Vidéo verticale** |
 
-### WhatsApp : non négociable
+### WhatsApp : à rebrancher avant de lancer le Maroc
 
-Remplissez `CONFIG.whatsapp` avec le numéro au format international, chiffres uniquement :
+Le bouton WhatsApp et le pixel Meta ont été **retirés du code le 2026-08-24**, à votre
+demande, pour garder le site minimal pendant la phase Canada.
 
-```js
-whatsapp: '2126XXXXXXXX',
-```
-
-Un bouton flottant apparaît alors automatiquement, avec un message pré-rempli dans la
-bonne langue. Laissé vide, rien ne s'affiche.
+Ils sont récupérables tels quels dans le commit `c4c1e84` (`git show c4c1e84`).
+À remettre avant toute campagne marocaine : sans WhatsApp, ce marché ne convertit pas.
 
 ### Angles créatifs Maroc
 

@@ -21,24 +21,9 @@
        Se trouve dans GA4 : Admin -> Flux de données -> votre flux web. */
     ga4: '',
 
-    /* Identifiant du pixel Meta (Facebook / Instagram) — que des chiffres.
-       Se trouve dans le Gestionnaire d'événements Meta. */
-    metaPixel: '',
-
     /* Étiquette de conversion Google Ads — format 'AW-123456789/AbC-D_efGh'.
        Se trouve dans Google Ads : Objectifs -> Conversions -> votre action. */
-    googleAdsConversion: '',
-
-    /* Numéro WhatsApp au format international, chiffres uniquement,
-       sans + ni espaces. Ex. Maroc : '2126XXXXXXXX'.
-       Rempli = un bouton WhatsApp flottant apparaît. Vide = rien. */
-    whatsapp: '',
-
-    /* Message pré-rempli dans WhatsApp, par langue. */
-    whatsappText: {
-      fr: "Bonjour, j'aimerais une soumission pour des portes et fenêtres en fibre de verre.",
-      en: 'Hello, I would like a quote for fiberglass doors and windows.'
-    }
+    googleAdsConversion: ''
   };
 
   var configured = /^https:\/\/script\.google\.com\/.+\/exec$/.test(CONFIG.endpoint);
@@ -139,7 +124,7 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
-     3 bis. MESURE — GA4, pixel Meta, conversion Google Ads
+     3 bis. MESURE — GA4 et conversion Google Ads
      Rien n'est chargé tant que l'identifiant correspondant est vide,
      donc aucune requête tierce et aucun cookie par défaut.
      ══════════════════════════════════════════════════════════════ */
@@ -169,20 +154,6 @@
       }
     }
 
-    if (CONFIG.metaPixel) {
-      /* Extrait officiel du pixel Meta, réécrit lisiblement. */
-      var fbq = window.fbq = function () {
-        fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
-      };
-      if (!window._fbq) window._fbq = fbq;
-      fbq.push = fbq;
-      fbq.loaded = true;
-      fbq.version = '2.0';
-      fbq.queue = [];
-      loadScript('https://connect.facebook.net/en_US/fbevents.js');
-      window.fbq('init', CONFIG.metaPixel);
-      window.fbq('track', 'PageView');
-    }
   }
 
   /** Appelée une seule fois, quand une demande part réellement. */
@@ -201,50 +172,11 @@
           window.gtag('event', 'conversion', { send_to: CONFIG.googleAdsConversion });
         }
       }
-      if (typeof window.fbq === 'function') {
-        window.fbq('track', 'Lead', { content_category: data.projectType });
-      }
     } catch (e) {
       // La mesure ne doit jamais casser l'envoi d'un lead.
       console.warn('Tracking non envoyé : ' + e);
     }
     window.dispatchEvent(new CustomEvent('funnel:lead', { detail: data }));
-  }
-
-  /* ══════════════════════════════════════════════════════════════
-     3 ter. WHATSAPP — indispensable au Maroc, inutile sans numéro
-     ══════════════════════════════════════════════════════════════ */
-  function initWhatsApp() {
-    if (!/^\d{8,15}$/.test(CONFIG.whatsapp)) return;
-
-    var a = document.createElement('a');
-    a.className = 'wa';
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.setAttribute('aria-label', 'WhatsApp');
-    a.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
-      '<path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2 .9c.2.1.4.2.4.3.1.1.1.6-.1 1.3Z"/>' +
-      '</svg>';
-
-    function refresh() {
-      var msg = CONFIG.whatsappText[lang()] || CONFIG.whatsappText.fr;
-      a.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg);
-    }
-    refresh();
-    document.querySelectorAll('.lang button').forEach(function (b) {
-      b.addEventListener('click', refresh);
-    });
-
-    a.addEventListener('click', function () {
-      if (typeof window.gtag === 'function' && CONFIG.ga4) {
-        window.gtag('event', 'contact', { method: 'whatsapp' });
-      }
-      if (typeof window.fbq === 'function') window.fbq('track', 'Contact');
-    });
-
-    document.body.appendChild(a);
-    document.body.classList.add('has-wa');
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -436,7 +368,6 @@
     initReveal();
     initYear();
     initForm();
-    initWhatsApp();
   }
 
   if (document.readyState === 'loading') {

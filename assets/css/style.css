@@ -298,22 +298,6 @@ strong{color:var(--ink);font-weight:650;}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
 .reveal.is-in{opacity:1;transform:none;}
 
-/* ---------------- WhatsApp (injecté par JS si un numéro est configuré) ------ */
-.wa{
-  position:fixed;right:18px;bottom:18px;z-index:70;
-  display:grid;place-items:center;width:56px;height:56px;
-  background:#25D366;color:#fff;border-radius:50%;
-  box-shadow:0 6px 22px rgba(37,211,102,.42);
-  transition:transform .18s ease,box-shadow .18s ease;
-}
-.wa svg{width:31px;height:31px;}
-.wa:hover{transform:scale(1.07);box-shadow:0 10px 28px rgba(37,211,102,.5);}
-.wa:focus-visible{outline:3px solid var(--ink);outline-offset:3px;}
-/* Sur mobile le CTA collant occupe déjà le bas : on remonte le bouton. */
-@media (max-width:980px){
-  body.has-wa .wa{bottom:84px;}
-}
-
 /* ---------------- Responsive ---------------- */
 @media (max-width:980px){
   .hero__in{grid-template-columns:1fr;}
