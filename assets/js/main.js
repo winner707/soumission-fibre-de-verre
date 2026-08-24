@@ -15,7 +15,7 @@
 
     /* URL /exec de l'application web Google Apps Script.
        Sans elle, le formulaire refuse d'envoyer. */
-    endpoint: 'REMPLACER_PAR_VOTRE_URL_APPS_SCRIPT',
+    endpoint: 'https://script.google.com/macros/s/AKfycbyXOXMKuQ81JkPGtUcDhNw2Dckw_NaI0EPaussEEDkvHFF52iT-Gdy6Xu_J4T4jtwaV/exec',
 
     /* Identifiant de mesure Google Analytics 4 — format 'G-XXXXXXXXXX'.
        Se trouve dans GA4 : Admin -> Flux de données -> votre flux web. */
