@@ -82,8 +82,14 @@
   function initLang() {
     var stored = null;
     try { stored = localStorage.getItem(KEY); } catch (e) {}
+
+    /* ?lang=en dans un lien publicitaire doit l'emporter sur le choix memorise :
+       sinon un visiteur deja venu en francais verra le francais malgre l'URL,
+       et une campagne anglophone atterrit sur une page francaise. */
     var qs = new URLSearchParams(location.search).get('lang');
-    applyLang(stored || (qs === 'en' || qs === 'fr' ? qs : null) || 'fr');
+    var forced = (qs === 'en' || qs === 'fr') ? qs : null;
+
+    applyLang(forced || stored || 'fr');
 
     document.querySelectorAll('.lang button').forEach(function (b) {
       b.addEventListener('click', function () { applyLang(b.dataset.lang); });
