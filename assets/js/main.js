@@ -34,7 +34,9 @@
      ══════════════════════════════════════════════════════════════ */
   var KEY = 'funnel-lang';
 
-  var META = {
+  /* Chaque page peut imposer ses propres titre et description bilingues
+     en définissant window.PAGE_META avant ce fichier (voir outils.html). */
+  var META = window.PAGE_META || {
     fr: {
       title: 'Soumission gratuite — Portes et fenêtres en fibre de verre',
       desc: "Obtenez une soumission gratuite pour des portes et fenêtres en fibre de verre : moins de chauffage, aucun entretien, une durée de vie exceptionnelle. Réponse sous 24 h, sans engagement."

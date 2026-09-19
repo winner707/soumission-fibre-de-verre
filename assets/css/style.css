@@ -298,10 +298,51 @@ strong{color:var(--ink);font-weight:650;}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
 .reveal.is-in{opacity:1;transform:none;}
 
+/* ---------------- Affiliation Amazon (outils.html) ---------------- */
+.disclosure{
+  max-width:74ch;margin-top:-.4rem;padding:.9em 1.15em;
+  background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--amber);
+  border-radius:var(--radius);font-size:.87rem;color:var(--muted);
+}
+.disclosure b{color:var(--ink);}
+
+.storebar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:1.4rem;}
+.storebar__lbl{font-size:.83rem;font-weight:700;color:var(--ink);}
+.storebar__note{font-size:.8rem;color:var(--muted);flex:1 1 22ch;min-width:22ch;}
+.store{display:inline-flex;padding:3px;background:var(--paper);border:1px solid var(--line);border-radius:999px;flex:none;}
+.store button{
+  padding:.42em 1em;background:none;border:0;border-radius:999px;
+  font-size:.83rem;font-weight:650;color:var(--muted);cursor:pointer;
+}
+.store button[aria-pressed="true"]{background:var(--green-soft);color:var(--green);}
+.store button:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
+
+.aff{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,26px);}
+/* Quatre produits : deux rangees de deux, plutot qu'une carte orpheline. */
+.aff--4{grid-template-columns:repeat(2,1fr);}
+.aff__card{
+  display:flex;flex-direction:column;
+  padding:clamp(20px,2.2vw,28px);background:var(--paper);
+  border:1px solid var(--line);border-radius:var(--radius-l);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.aff__card:hover{transform:translateY(-4px);box-shadow:var(--shadow);}
+.aff__ic{
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;margin-bottom:1rem;
+  background:var(--green-soft);color:var(--green);border-radius:11px;
+}
+.aff__ic svg{width:21px;height:21px;}
+.aff__card .klimat{align-self:flex-start;margin-bottom:.9rem;}
+.aff__card h3{margin-bottom:.5rem;}
+.aff__card p{font-size:.92rem;color:var(--muted);margin-bottom:1.5rem;}
+.aff__card .btn{margin-top:auto;}
+.aff__card .btn::after{content:"\2197";font-size:1.05em;line-height:1;}
+
 /* ---------------- Responsive ---------------- */
 @media (max-width:980px){
   .hero__in{grid-template-columns:1fr;}
-  .tiles,.nums,.flow{grid-template-columns:1fr 1fr;}
+  .tiles,.nums,.flow,.aff{grid-template-columns:1fr 1fr;}
   .tiles--2 .tile:last-child{grid-column:auto;}
   .flow li:last-child,.tiles .tile:last-child,.nums .num:last-child{grid-column:1/-1;}
   .split,.final{grid-template-columns:1fr;}
@@ -315,7 +356,7 @@ strong{color:var(--ink);font-weight:650;}
 }
 @media (max-width:600px){
   body{font-size:16.5px;}
-  .tiles,.nums,.flow,.picks,.fields{grid-template-columns:1fr;}
+  .tiles,.nums,.flow,.aff,.aff--4,.picks,.fields{grid-template-columns:1fr;}
   .flow li:last-child,.tiles .tile:last-child,.nums .num:last-child{grid-column:auto;}
   .mark span{font-size:.9rem;}
   .actions{flex-wrap:wrap;}

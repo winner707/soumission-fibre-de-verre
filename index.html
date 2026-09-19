@@ -20,6 +20,10 @@
 <link rel="preload" as="image" href="assets/img/hero-1600.webp"
       imagesrcset="assets/img/hero-800.webp 800w, assets/img/hero-1600.webp 1600w" imagesizes="100vw">
 <link rel="stylesheet" href="assets/css/style.css">
+<noscript>
+  <!-- Sans JavaScript, les blocs animés doivent rester visibles. -->
+  <style>.reveal{opacity:1;transform:none;}</style>
+</noscript>
 </head>
 
 <body>
@@ -485,6 +489,38 @@
   </div>
 </section>
 
+<!-- ═══════════════ BOÎTE À OUTILS (affiliation) ═══════════════ -->
+<section class="section">
+  <div class="wrap">
+    <div class="split">
+      <div class="split__media reveal">
+        <picture>
+          <source type="image/webp" srcset="assets/img/hiver-800.webp 800w, assets/img/hiver-1600.webp 1600w" sizes="(max-width:980px) 92vw, 46vw">
+          <img src="assets/img/hiver-1600.jpg" alt="Fenêtre givrée vue de l'intérieur par grand froid" width="1600" height="1200" loading="lazy">
+        </picture>
+      </div>
+      <div class="split__body">
+        <span class="eyebrow" data-fr="En attendant" data-en="In the meantime">En attendant</span>
+        <h2 data-fr="Votre projet est pour le printemps&nbsp;? Voici quoi faire d'ici là."
+            data-en="Project planned for spring? Here's what to do until then.">
+          Votre projet est pour le printemps&nbsp;? Voici quoi faire d'ici là.
+        </h2>
+        <p data-fr="Un coupe-froid, un bas de porte et une heure de repérage éliminent une part réelle des pertes, pour le prix d'un souper. Nous avons rassemblé ce qui fonctionne vraiment — et dit franchement où ça s'arrête."
+           data-en="A weatherstrip, a door sweep and an hour of hunting kill a real share of the losses, for the price of a dinner. We gathered what actually works — and say plainly where it stops.">
+          Un coupe-froid, un bas de porte et une heure de repérage éliminent une part réelle des pertes, pour le prix d'un souper. Nous avons rassemblé ce qui fonctionne vraiment — et dit franchement où ça s'arrête.
+        </p>
+        <p class="note" style="text-align:left;margin-top:1rem"
+           data-fr="Page gratuite, sans inscription. Elle contient des liens Amazon affiliés&nbsp;: si vous achetez, nous touchons une commission, sans supplément pour vous."
+           data-en="Free page, no sign-up. It contains Amazon affiliate links: if you buy, we earn a commission at no extra cost to you.">
+          Page gratuite, sans inscription. Elle contient des liens Amazon affiliés&nbsp;: si vous achetez, nous touchons une commission, sans supplément pour vous.
+        </p>
+        <a class="btn btn--ghost" href="outils.html" style="margin-top:1.4rem"
+           data-fr="Voir la boîte à outils" data-en="See the toolbox">Voir la boîte à outils</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════ CTA FINAL ═══════════════ -->
 <section class="section section--soft">
   <div class="wrap">
@@ -524,6 +560,7 @@
           data-en="Requests received are used only to prepare a quote. No data is resold.">
       Les demandes reçues servent uniquement à préparer une soumission. Aucune donnée n'est revendue.
     </span>
+    <a href="outils.html" data-fr="Boîte à outils" data-en="Toolbox">Boîte à outils</a>
   </div>
 </footer>
 
