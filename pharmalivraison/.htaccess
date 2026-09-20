@@ -1,0 +1,4 @@
+# Le depot entier est deploye dans public_html par FTP (voir le .htaccess a la
+# racine). Ce dossier contient les sources de l'application Next.js, qui est
+# hebergee separement (Vercel) : rien ici ne doit etre servi par Apache.
+Require all denied
