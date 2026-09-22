@@ -1,0 +1,6 @@
+data/prospects.csv
+data/*.tmp
+sortie/
+notes/
+__pycache__/
+.pytest_cache/
