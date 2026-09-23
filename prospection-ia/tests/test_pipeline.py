@@ -39,3 +39,16 @@ def test_relances_et_rapport():
 
 def test_slug():
     assert pipeline.slug("Agence Élan & Cie") == "agence-elan-cie"
+
+
+def test_csv_excel_francais(tmp_path):
+    """Excel FR : points-virgules, Windows-1252, lignes vides en fin de fichier."""
+    f = tmp_path / "p.csv"
+    f.write_bytes("agence;site;fondateur;email\nÉlan Média;elan.ca;Zoé;z@elan.ca\n;;;\n".encode("cp1252"))
+    lignes = pipeline.charger(f)
+    assert [l["agence"] for l in lignes] == ["Élan Média"] and lignes[0]["statut"] == "a_contacter"
+    pipeline.marquer(lignes[0], "envoye")
+    pipeline.sauver(f, lignes)
+    texte = f.read_bytes().decode("utf-8-sig")
+    assert texte.startswith("agence;site;") and "Élan Média" in texte
+    assert pipeline.charger(f)[0]["statut"] == "envoye"

@@ -1,2 +1,2 @@
-agence,site,fondateur,email,linkedin,ville,client_exemple,statut,date_contact,notes
-Agence Exemple,https://example.com,Marie Tremblay,marie@example.com,https://www.linkedin.com/in/exemple,Montréal,Boulangerie XYZ,a_contacter,,
+﻿agence;site;fondateur;email;linkedin;ville;client_exemple;statut;date_contact;notes
+Agence Exemple;https://example.com;Marie Tremblay;marie@example.com;https://www.linkedin.com/in/exemple;Montréal;Boulangerie XYZ;a_contacter;;

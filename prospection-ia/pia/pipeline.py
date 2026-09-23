@@ -1,6 +1,7 @@
 """Le CRM : un fichier CSV + les cibles du plan 12 semaines."""
 
 import csv
+import io
 import re
 import unicodedata
 from datetime import date
@@ -34,23 +35,40 @@ def slug(texte: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", texte.lower()).strip("-") or "prospect"
 
 
+def _lire_texte(chemin: Path) -> str:
+    """UTF-8 (avec ou sans BOM), sinon Windows-1252 : un CSV enregistré par Excel sous Windows."""
+    brut = chemin.read_bytes()
+    try:
+        return brut.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return brut.decode("cp1252")
+
+
+def _separateur(texte: str) -> str:
+    """Excel en français enregistre les CSV avec des points-virgules."""
+    entete = texte.split("\n", 1)[0]
+    return ";" if entete.count(";") > entete.count(",") else ","
+
+
 def charger(chemin: Path) -> list[dict]:
-    with chemin.open(newline="", encoding="utf-8") as f:
-        lignes = list(csv.DictReader(f))
+    texte = _lire_texte(chemin)
+    lignes = list(csv.DictReader(io.StringIO(texte, newline=""), delimiter=_separateur(texte)))
     for ligne in lignes:
+        ligne.pop(None, None)  # cellules en trop sur une ligne
         for col in COLONNES:
-            ligne.setdefault(col, "")
-            ligne[col] = ligne[col] or ""
+            ligne[col] = (ligne.get(col) or "").strip()
         ligne["statut"] = ligne["statut"] or "a_contacter"
-    return lignes
+    return [l for l in lignes if l["agence"]]
 
 
 def sauver(chemin: Path, lignes: list[dict]) -> None:
+    """Réécrit le fichier avec le même séparateur, en UTF-8 avec BOM pour qu'Excel garde les accents."""
+    separateur = _separateur(_lire_texte(chemin)) if chemin.exists() else ","
     colonnes = COLONNES + [c for l in lignes for c in l if c not in COLONNES]
     colonnes = list(dict.fromkeys(colonnes))
     tmp = chemin.with_suffix(".tmp")
-    with tmp.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=colonnes)
+    with tmp.open("w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.DictWriter(f, fieldnames=colonnes, delimiter=separateur)
         writer.writeheader()
         writer.writerows(lignes)
     tmp.replace(chemin)
