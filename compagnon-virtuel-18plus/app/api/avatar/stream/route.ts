@@ -3,7 +3,8 @@ import { z } from "zod";
 import { creerStream, envoyerIce, envoyerReponseSdp, fermerStream, parlerStream } from "@/lib/avatar";
 import { messageCompagnonAutorise } from "@/lib/messages";
 import { preparerTexteVocal } from "@/lib/elevenlabs";
-import { exigerFan, reponseErreur } from "@/lib/session";
+import { ErreurAcces, exigerFan, reponseErreur } from "@/lib/session";
+import { kv } from "@/lib/redis";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,9 +33,17 @@ export async function POST(req: Request) {
     if (!body.success) return NextResponse.json({ erreur: "Requête invalide." }, { status: 400 });
     const d = body.data;
 
+    // Chaque session D-ID appartient au fan qui l'a créée
+    if (d.action !== "creer" && (await kv.get(`stream-owner:${d.streamId}`)) !== fan.id) {
+      throw new ErreurAcces(403, "Session vidéo inconnue.");
+    }
+
     switch (d.action) {
-      case "creer":
-        return NextResponse.json(await creerStream(fan.persona.avatarSourceUrl));
+      case "creer": {
+        const session = await creerStream(fan.persona.avatarSourceUrl);
+        await kv.set(`stream-owner:${session.id}`, fan.id, 60 * 60);
+        return NextResponse.json(session);
+      }
       case "sdp":
         return NextResponse.json((await envoyerReponseSdp(d.streamId, d.sessionId, d.answer)) ?? { ok: true });
       case "ice":
@@ -44,6 +53,7 @@ export async function POST(req: Request) {
         return NextResponse.json((await parlerStream(d.streamId, d.sessionId, preparerTexteVocal(texte), persona.voiceId)) ?? { ok: true });
       }
       case "fermer":
+        await kv.del(`stream-owner:${d.streamId}`);
         return NextResponse.json((await fermerStream(d.streamId, d.sessionId)) ?? { ok: true });
     }
   } catch (e) {

@@ -27,5 +27,12 @@ export default async function PageFan() {
     return <p className="py-24 text-center text-muted-foreground">{fan.persona.nom} n&apos;est pas disponible pour le moment.</p>;
   }
 
-  return <ChatCompanion nomPersona={fan.persona.nom} safeWord={fan.safeWord} />;
+  return (
+    <ChatCompanion
+      nomPersona={fan.persona.nom}
+      safeWord={fan.safeWord}
+      modeLive={process.env.DID_STREAMING === "true"}
+      portrait={fan.persona.avatarSourceUrl ?? process.env.DID_DEFAULT_SOURCE_URL}
+    />
+  );
 }

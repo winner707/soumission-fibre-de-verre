@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, SendHorizontal, Trash2, Video, Volume2 } from "lucide-react";
+import { Loader2, Radio, SendHorizontal, Trash2, Video, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { VideoAvatar } from "@/components/VideoAvatar";
+import { VideoAvatarLive, type VideoAvatarLiveHandle } from "@/components/VideoAvatarLive";
 import { SafetyBanner } from "@/components/SafetyBanner";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +15,7 @@ interface MessageUI {
   id?: string; // id en base, disponible une fois le message validé (audio/vidéo possibles)
   auteur: "fan" | "compagnon";
   texte: string;
-  media?: "audio" | "video";
+  media?: "audio" | "video" | "live";
   enCours?: boolean;
 }
 
@@ -30,8 +31,19 @@ type EvenementSSE =
  * Interface de chat avec le compagnon :
  * - streaming texte (SSE), bulles audio / vidéo à la demande
  * - bouton Stop (coupe texte, voix et vidéo) et gestion du safe word
+ * - `modeLive` : avatar D-ID en direct (WebRTC) ; repli sur la vidéo classique sinon
  */
-export function ChatCompanion({ nomPersona, safeWord }: { nomPersona: string; safeWord: string }) {
+export function ChatCompanion({
+  nomPersona,
+  safeWord,
+  modeLive = false,
+  portrait,
+}: {
+  nomPersona: string;
+  safeWord: string;
+  modeLive?: boolean;
+  portrait?: string | null;
+}) {
   const [messages, setMessages] = useState<MessageUI[]>([]);
   const [saisie, setSaisie] = useState("");
   const [enCours, setEnCours] = useState(false);
@@ -39,6 +51,7 @@ export function ChatCompanion({ nomPersona, safeWord }: { nomPersona: string; sa
   const [proposerEffacement, setProposerEffacement] = useState(false);
   const [info, setInfo] = useState<string>();
   const abortRef = useRef<AbortController | null>(null);
+  const liveRef = useRef<VideoAvatarLiveHandle>(null);
   const finRef = useRef<HTMLDivElement>(null);
 
   // Historique existant
@@ -66,6 +79,7 @@ export function ChatCompanion({ nomPersona, safeWord }: { nomPersona: string; sa
   /** STOP : coupe le flux côté client ET côté serveur, et tout média en lecture. */
   const stop = useCallback(async (effacerContexte = false) => {
     abortRef.current?.abort();
+    liveRef.current?.arreter();
     setStopSignal((n) => n + 1);
     setEnCours(false);
     majDernier((m) => ({ ...m, enCours: false }));
@@ -129,6 +143,7 @@ export function ChatCompanion({ nomPersona, safeWord }: { nomPersona: string; sa
           else if (ev.type === "replace") majDernier((m) => ({ ...m, texte: ev.text }));
           else if (ev.type === "safeword") {
             setStopSignal((n) => n + 1);
+            liveRef.current?.arreter();
             setProposerEffacement(true);
           } else if (ev.type === "stopped") majDernier((m) => ({ ...m, texte: m.texte || "…" }));
           else if (ev.type === "done") majDernier((m) => ({ ...m, id: ev.messageId, enCours: false }));
@@ -146,14 +161,25 @@ export function ChatCompanion({ nomPersona, safeWord }: { nomPersona: string; sa
     }
   };
 
-  const demanderMedia = (cle: string, media: "audio" | "video") =>
+  const fixerMedia = (cle: string, media: MessageUI["media"]) =>
     setMessages((prev) => prev.map((m) => (m.cle === cle ? { ...m, media } : m)));
+
+  /** Vidéo : via l'avatar live s'il est connecté, sinon génération classique (D-ID talks). */
+  const demanderMedia = async (cle: string, media: "audio" | "video", messageId: string) => {
+    if (media === "video" && liveRef.current?.estConnecte()) {
+      fixerMedia(cle, "live");
+      if (await liveRef.current.parler(messageId)) return;
+    }
+    fixerMedia(cle, media);
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
       <SafetyBanner onStop={() => void stop()} generationEnCours={enCours} safeWord={safeWord} />
 
       <div className="container flex-1 space-y-4 py-6">
+        {modeLive && <VideoAvatarLive ref={liveRef} portrait={portrait} nom={nomPersona} />}
+
         {messages.length === 0 && (
           <p className="py-16 text-center font-serif text-lg text-muted-foreground">
             Dis bonjour à <span className="text-or">{nomPersona}</span>…
@@ -174,12 +200,17 @@ export function ChatCompanion({ nomPersona, safeWord }: { nomPersona: string; sa
               <div className="flex flex-wrap items-center gap-2 pl-1">
                 {m.media === "audio" && <AudioPlayer messageId={m.id} autoPlay stopSignal={stopSignal} />}
                 {m.media === "video" && <VideoAvatar messageId={m.id} stopSignal={stopSignal} />}
+                {m.media === "live" && (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-or">
+                    <Radio className="h-3.5 w-3.5" /> Prononcé par l&apos;avatar live (IA)
+                  </span>
+                )}
                 {!m.media && (
                   <>
-                    <Button size="sm" variant="ghost" onClick={() => demanderMedia(m.cle, "audio")}>
+                    <Button size="sm" variant="ghost" onClick={() => void demanderMedia(m.cle, "audio", m.id!)}>
                       <Volume2 /> Réponse vocale
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => demanderMedia(m.cle, "video")}>
+                    <Button size="sm" variant="ghost" onClick={() => void demanderMedia(m.cle, "video", m.id!)}>
                       <Video /> Réponse vidéo
                     </Button>
                   </>

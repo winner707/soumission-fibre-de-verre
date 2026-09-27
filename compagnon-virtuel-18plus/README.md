@@ -151,11 +151,25 @@ Sans aucune clé API, vous pouvez déjà tester : connexion, contrôle d'accès,
 5. **Chat** — écrire « Salut, je m'appelle Alex, j'adore le jazz ». Vérifier le streaming, le ton taquin, l'utilisation du prénom. Après quelques échanges, *Préférences → Ce dont elle se souvient* affiche les faits mémorisés.
 6. **Refus poli** — écrire une demande explicite : le personnage refuse avec douceur, sans casser le personnage, et propose un autre sujet.
 7. **Audio** — cliquer sur **Réponse vocale** sous une réponse : la lecture démarre en streaming, avec la mention « Voix générée par IA ». Recliquer sur la même réponse → servie depuis le cache (en-tête `X-Cache: HIT`).
-8. **Vidéo** — cliquer sur **Réponse vidéo** : état « Elle se prépare… » (polling), puis lecture avec la mention « Généré par IA ». Test du repli : mettre une URL d'avatar invalide → message d'erreur puis **audio automatiquement**.
+8. **Vidéo** — (option live : avec `DID_STREAMING=true`, cliquer d'abord sur **Connecter l'avatar live** ; « Réponse vidéo » la fait alors parler instantanément, et STOP coupe la session.) Sinon, cliquer sur **Réponse vidéo** : état « Elle se prépare… » (polling), puis lecture avec la mention « Généré par IA ». Test du repli : mettre une URL d'avatar invalide → message d'erreur puis **audio automatiquement**.
 9. **Safe word / Stop** — pendant une réponse, cliquer sur **STOP** : le texte s'arrête net et le son se coupe. Taper ensuite le safe word : réponse fixe « Message reçu… », puis **Effacer le contexte récent**.
 10. **Consentement** — *Préférences* → désactiver le consentement → le chat affiche « Consentement retiré ». Le réactiver.
 11. **Modération créateur** — en créateur : *Fans* → le fan apparaît avec ses signalements → ouvrir la conversation (déchiffrée) → **Bannir** → côté fan, accès suspendu. Réintégrer.
 12. **RGPD** — en fan : *Mes données* → télécharger l'export JSON → taper `SUPPRIMER` → **Tout supprimer** : compte, messages, mémoire Redis et journaux associés sont effacés.
+
+---
+
+## Avatar vidéo en direct (option)
+
+Avec `DID_STREAMING=true`, l'espace fan affiche un panneau **« Avatar vidéo en direct »** (`components/VideoAvatarLive.tsx`) :
+
+1. **Connecter l'avatar live** ouvre une session WebRTC avec D-ID. Le serveur (`/api/avatar/stream`) ne relaie que la signalisation (offre/réponse SDP, candidats ICE) et vérifie que la session appartient bien au fan connecté.
+2. Une fois connecté, **Réponse vidéo** fait parler l'avatar **instantanément**, sans attendre de génération, et toujours à partir d'un message déjà modéré.
+3. Entre deux phrases, le portrait est affiché (D-ID n'envoie des images que pendant la parole).
+4. **STOP** ou le safe word ferment la session immédiatement. Une session ouverte est facturée par D-ID : elle est aussi fermée quand on quitte la page.
+5. Si la connexion échoue, la **vidéo classique** (`/talks`) et le repli audio restent utilisés.
+
+Ce mode est plus fluide mais plus coûteux : réservez-le de préférence à une offre premium.
 
 ---
 
