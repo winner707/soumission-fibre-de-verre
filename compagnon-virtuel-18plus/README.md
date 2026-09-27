@@ -142,6 +142,22 @@ Après `npm run db:seed` :
 
 Sans aucune clé API, vous pouvez déjà tester : connexion, contrôle d'accès, inscription, vérification d'âge simulée, safe word, blocage des messages interdits par mots-clés, consentement, bannissement, export et suppression. Le chat « normal », la voix et la vidéo nécessitent les clés correspondantes.
 
+## Tests automatisés
+
+```bash
+npm test            # 55 tests unitaires (modération, chiffrement, prompts, validations) — sans base ni réseau
+npm run test:e2e    # 27 tests de bout en bout sur l'application réelle
+```
+
+`npm run test:e2e` exige PostgreSQL + Redis lancés, un `.env` rempli et `npm run db:push && npm run db:seed`.
+Il démarre l'application sur le port 3100 avec un **faux serveur Claude** (`scripts/mock-anthropic.mjs`, port 4010) :
+aucun appel payant, aucune clé réelle nécessaire. Il couvre les accès par rôle, le streaming, le safe word, les refus,
+la coupure d'une réponse explicite en plein flux, le bouton Stop, le chiffrement, l'inscription, la vérification d'âge,
+le consentement, le bannissement, la déclaration de minorité, l'export et le droit à l'oubli.
+Le fan de test créé est supprimé à la fin.
+
+La voix (ElevenLabs), la vidéo (D-ID) et Stripe Identity ne sont pas simulés : testez-les avec le plan manuel ci-dessous.
+
 ## Plan de test manuel
 
 1. **Créateur configure le persona** — se connecter en créateur → *Persona & limites* : modifier le nom, le style, les centres d'intérêt, ajouter une limite perso (ex. « ne parle jamais de politique »), renseigner le Voice ID ElevenLabs et l'URL de l'avatar, cocher l'attestation des droits, mettre en ligne, **Enregistrer**. Cliquer sur **Écouter la voix**. Essayer un âge fictif de 18 → refusé (21 minimum).
