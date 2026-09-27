@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette « lounge » : noir velours, bordeaux profond, or doux */
+@layer base {
+  :root {
+    --background: 340 20% 5%;
+    --foreground: 30 20% 92%;
+    --card: 340 18% 8%;
+    --card-foreground: 30 20% 92%;
+    --primary: 345 62% 42%;
+    --primary-foreground: 30 30% 96%;
+    --secondary: 340 14% 15%;
+    --secondary-foreground: 30 20% 90%;
+    --muted: 340 12% 13%;
+    --muted-foreground: 30 8% 62%;
+    --accent: 340 16% 18%;
+    --accent-foreground: 30 20% 94%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 340 14% 17%;
+    --input: 340 14% 20%;
+    --ring: 38 60% 58%;
+    --or: 38 60% 62%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(345 60% 22% / 0.35), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, hsl(38 60% 40% / 0.08), transparent);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .bulle-fan {
+    @apply ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary/90 px-4 py-2.5 text-primary-foreground;
+  }
+  .bulle-compagnon {
+    @apply mr-auto max-w-[85%] rounded-2xl rounded-bl-sm border bg-card px-4 py-2.5;
+  }
+}
