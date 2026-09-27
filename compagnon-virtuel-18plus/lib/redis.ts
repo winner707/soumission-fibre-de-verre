@@ -80,7 +80,19 @@ const globalForKv = globalThis as unknown as { kv?: Kv };
 
 function creerKv(): Kv {
   if (process.env.REDIS_URL) {
-    return new RedisKv(new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, lazyConnect: false }));
+    const client = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2, lazyConnect: false });
+    // Un seul message clair au lieu d'une erreur à chaque tentative de reconnexion
+    let signale = false;
+    client.on("error", (e: Error & { code?: string }) => {
+      if (signale) return;
+      signale = true;
+      console.error(
+        `[kv] Redis inaccessible (${process.env.REDIS_URL}) : ${e.code ?? e.message}. ` +
+          "Lancez Redis, ou videz REDIS_URL dans .env pour utiliser la mémoire locale en développement.",
+      );
+    });
+    client.on("ready", () => (signale = false));
+    return new RedisKv(client);
   }
   if (process.env.NODE_ENV === "production") {
     console.warn("[kv] REDIS_URL absent en production : mémoire locale utilisée (non recommandé).");

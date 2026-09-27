@@ -6,3 +6,6 @@ out/
 .cache/
 *.tsbuildinfo
 next-env.d.ts
+
+# Le modèle de configuration (sans secrets) doit être versionné
+!.env.example
