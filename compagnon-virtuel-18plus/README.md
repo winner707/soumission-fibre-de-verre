@@ -36,7 +36,18 @@ Application web qui permet à un **créateur adulte** de proposer à ses fans un
 
 ---
 
-## Installation
+## Installation express (Windows)
+
+Prérequis : [Node.js LTS](https://nodejs.org) et [Docker Desktop](https://www.docker.com/products/docker-desktop).
+
+**Double-cliquez sur `setup.cmd`** (dans le dossier `compagnon-virtuel-18plus`). Le script :
+vérifie les outils → crée ou répare `.env` (secrets générés) → démarre PostgreSQL et Redis via Docker
+(Redis est facultatif : mémoire locale sinon) → `npm install` → crée les tables → charge les comptes de démo
+→ lance l'application et ouvre http://localhost:3000.
+
+Relancez `setup.cmd` à tout moment (après un `git pull`, ou après avoir ajouté une clé API dans `.env`) : il ne réécrit que ce qui manque.
+
+## Installation manuelle
 
 Prérequis : Node.js ≥ 20, PostgreSQL ≥ 14, Redis ≥ 6 (facultatif en dev).
 
