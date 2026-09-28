@@ -1,0 +1,137 @@
+// Schéma de données — compagnon virtuel 18+
+// Les messages sont stockés chiffrés (AES-256-GCM, voir lib/crypto.ts).
+// Les journaux de modération sont anonymisés (hash du fan, jamais le contenu).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  createur
+  fan
+}
+
+enum Ton {
+  doux
+  taquin
+  dominant
+  romantique
+}
+
+enum AuteurMessage {
+  fan
+  compagnon
+}
+
+enum Verdict {
+  ok
+  limite
+  interdit
+}
+
+enum DirectionModeration {
+  entree
+  sortie
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(fan)
+  dateNaissance DateTime
+  // Vérification d'âge 18+ (Stripe Identity en production)
+  ageVerifie    Boolean   @default(false)
+  ageVerifieLe  DateTime?
+  ageMethode    String?
+  ageSessionId  String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  persona Persona?
+  fan     Fan?
+}
+
+model Persona {
+  id                String   @id @default(cuid())
+  createurId        String   @unique
+  createur          User     @relation(fields: [createurId], references: [id], onDelete: Cascade)
+  nom               String
+  // Âge fictif du personnage : 21 minimum, imposé par le code
+  ageFictif         Int      @default(25)
+  style             String   @default("charmeur, taquin, à l'écoute")
+  personnalite      String   @default("")
+  centresInteret    String[]
+  // Limites propres au créateur (s'ajoutent aux limites globales non désactivables)
+  limites           String[]
+  // Réponses types : { accueil, flirt, soutien, refus }
+  reponsesTypes     Json     @default("{}")
+  langue            String   @default("fr")
+  voiceId           String?
+  avatarSourceUrl   String?
+  // Le créateur atteste disposer des droits sur la voix et l'image (accord écrit si personne réelle)
+  droitsImageVoix   Boolean  @default(false)
+  actif             Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  fans Fan[]
+}
+
+model Fan {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personaId             String
+  persona               Persona   @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  pseudo                String
+  prenom                String?
+  anniversaire          String?   // "JJ/MM" — jamais l'année
+  ton                   Ton       @default(doux)
+  sujetsAimes           String[]
+  sujetsTabous          String[]
+  safeWord              String    @default("stop")
+  // Consentement explicite et révocable
+  consentementDonne     Boolean   @default(false)
+  consentementLe        DateTime?
+  consentementRevoqueLe DateTime?
+  // Modération
+  banni                 Boolean   @default(false)
+  banniRaison           String?
+  banniLe               DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  messages Message[]
+}
+
+model Message {
+  id            String        @id @default(cuid())
+  fanId         String
+  fan           Fan           @relation(fields: [fanId], references: [id], onDelete: Cascade)
+  auteur        AuteurMessage
+  // Contenu chiffré : iv:tag:données (base64)
+  contenuChiffre String
+  verdict       Verdict       @default(ok)
+  createdAt     DateTime      @default(now())
+
+  @@index([fanId, createdAt])
+}
+
+// Journal de modération anonymisé : aucun contenu, juste un hash et des catégories
+model ModerationLog {
+  id         String              @id @default(cuid())
+  fanHash    String
+  direction  DirectionModeration
+  verdict    Verdict
+  categories String[]
+  source     String              // "mots-cles" | "llm"
+  createdAt  DateTime            @default(now())
+
+  @@index([createdAt])
+}
