@@ -25,13 +25,25 @@ export const authOptions: NextAuthOptions = {
         if (!parsed.success) return null;
         const email = parsed.data.email.toLowerCase();
 
-        // Anti-bruteforce simple : 10 tentatives / 15 min par e-mail
-        const essais = await kv.incr(`login:${email}`, 15 * 60);
-        if (essais > 10) return null;
+        // Anti-bruteforce simple : 10 tentatives / 15 min par e-mail.
+        // Si Redis est en panne, on n'empêche pas la connexion (on le signale seulement).
+        try {
+          const essais = await kv.incr(`login:${email}`, 15 * 60);
+          if (essais > 10) throw new Error("TROP_DE_TENTATIVES");
+        } catch (e) {
+          if ((e as Error).message === "TROP_DE_TENTATIVES") throw e;
+          console.error("[auth] compteur anti-bruteforce indisponible (Redis) :", (e as Error).message);
+        }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        let user;
+        try {
+          user = await prisma.user.findUnique({ where: { email } });
+        } catch (e) {
+          console.error("[auth] base de données injoignable :", (e as Error).message);
+          throw new Error("BASE_INDISPONIBLE");
+        }
         if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) return null;
-        await kv.del(`login:${email}`);
+        await kv.del(`login:${email}`).catch(() => undefined);
         return { id: user.id, email: user.email, role: user.role };
       },
     }),

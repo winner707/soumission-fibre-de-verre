@@ -24,7 +24,15 @@ function FormulaireConnexion() {
     setErreur(undefined);
     const res = await signIn("credentials", { email, password, redirect: false });
     setChargement(false);
-    if (res?.error) return setErreur("Identifiants incorrects.");
+    if (res?.error) {
+      // NextAuth renvoie "CredentialsSignin" pour un mauvais mot de passe, sinon le message de l'erreur levée
+      const messages: Record<string, string> = {
+        CredentialsSignin: "Identifiants incorrects.",
+        TROP_DE_TENTATIVES: "Trop de tentatives. Réessaie dans 15 minutes.",
+        BASE_INDISPONIBLE: "Base de données injoignable : vérifie que PostgreSQL (Docker) est lancé.",
+      };
+      return setErreur(messages[res.error] ?? `Erreur serveur (${res.error}). Regarde le terminal.`);
+    }
     router.push(params.get("callbackUrl") ?? "/");
     router.refresh();
   };
