@@ -35,6 +35,20 @@ type Evenement =
 
 const DEBIT_MAX_PAR_MINUTE = 20;
 
+/** Traduit les erreurs courantes de l'API Anthropic en message clair (journal + mode dev). */
+function diagnostiquer(e: unknown): string {
+  const statut = (e as { status?: number }).status;
+  const message = String((e as Error)?.message ?? "");
+  if (!process.env.ANTHROPIC_API_KEY || /api[_ -]?key|x-api-key|authentication/i.test(message) || statut === 401) {
+    return "Clé ANTHROPIC_API_KEY absente ou invalide : ajoutez-la dans .env puis relancez.";
+  }
+  if (/credit balance/i.test(message)) return "Crédit Anthropic épuisé : ajoutez du crédit sur console.anthropic.com (Billing).";
+  if (statut === 404 || /model/i.test(message)) return "Modèle introuvable : vérifiez ANTHROPIC_MODEL dans .env.";
+  if (statut === 429) return "Limite de requêtes Anthropic atteinte : réessayez dans un instant.";
+  if (/ENOTFOUND|ECONNREFUSED|fetch failed|network/i.test(message)) return "Connexion à l'API Anthropic impossible (réseau / pare-feu).";
+  return "Erreur inattendue";
+}
+
 /** GET : historique récent du fan (déchiffré), pour réafficher le chat. */
 export async function GET() {
   try {
@@ -220,8 +234,13 @@ export async function POST(req: Request) {
             .catch((err) => console.error("[memoire] extraction impossible :", err.message));
         }
       } catch (e) {
-        console.error("[chat]", e);
-        envoyer({ type: "error", message: "Oups, j'ai perdu le fil… Tu peux répéter ?" });
+        const cause = diagnostiquer(e);
+        console.error(`[chat] ${cause}`, e);
+        // En développement, on affiche la cause exacte pour aider au réglage ; jamais en production
+        const texte = process.env.NODE_ENV === "development" && cause !== "Erreur inattendue"
+          ? `⚙️ (dev) ${cause}`
+          : "Oups, j'ai perdu le fil… Tu peux répéter ?";
+        envoyer({ type: "error", message: texte });
       } finally {
         try {
           controller.close();
