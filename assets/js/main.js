@@ -23,7 +23,15 @@
 
     /* Étiquette de conversion Google Ads — format 'AW-123456789/AbC-D_efGh'.
        Se trouve dans Google Ads : Objectifs -> Conversions -> votre action. */
-    googleAdsConversion: ''
+    googleAdsConversion: '',
+
+    /* Assistante vocale IA (ElevenLabs) — identifiant de l'agent, format 'agent_xxxx'.
+       Se trouve dans ElevenLabs : Agents -> votre agent -> ID sous le nom.
+       Vide : rien n'est chargé. */
+    assistantAgentId: '',
+
+    /* Image ronde affichée dans la bulle de l'assistante (facultatif). */
+    assistantAvatar: ''
   };
 
   var configured = /^https:\/\/script\.google\.com\/.+\/exec$/.test(CONFIG.endpoint);
@@ -154,6 +162,19 @@
       }
     }
 
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     3 ter. ASSISTANTE VOCALE IA
+     Même règle que la mesure : sans identifiant, aucun script tiers.
+     ══════════════════════════════════════════════════════════════ */
+  function initAssistant() {
+    if (!/^agent_[a-z0-9]+$/.test(CONFIG.assistantAgentId)) return;
+    var widget = document.createElement('elevenlabs-convai');
+    widget.setAttribute('agent-id', CONFIG.assistantAgentId);
+    if (CONFIG.assistantAvatar) widget.setAttribute('avatar-image-url', CONFIG.assistantAvatar);
+    document.body.appendChild(widget);
+    loadScript('https://unpkg.com/@elevenlabs/convai-widget-embed');
   }
 
   /** Appelée une seule fois, quand une demande part réellement. */
@@ -364,6 +385,7 @@
   function boot() {
     initLang();
     initTracking();
+    initAssistant();
     initHeader();
     initReveal();
     initYear();
