@@ -28,7 +28,7 @@
     /* Assistante vocale IA (ElevenLabs) — identifiant de l'agent, format 'agent_xxxx'.
        Se trouve dans ElevenLabs : Agents -> votre agent -> ID sous le nom.
        Vide : rien n'est chargé. */
-    assistantAgentId: '',
+    assistantAgentId: 'agent_9201m3mjgjp2f999szx6cq2a5vrv',
 
     /* Image ronde affichée dans la bulle de l'assistante (facultatif). */
     assistantAvatar: ''

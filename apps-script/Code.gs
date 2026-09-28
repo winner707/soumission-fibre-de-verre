@@ -30,7 +30,11 @@ var NOTIFY_EMAILS = ['otmatechinc@gmail.com'];
  * A remplir avec le domaine final une fois le site en ligne, par ex. :
  *   ['votre-site.hostingersite.com']
  */
-var ALLOWED_HOSTS = ['blueviolet-loris-711681.hostingersite.com'];
+var ALLOWED_HOSTS = [
+  'blueviolet-loris-711681.hostingersite.com',
+  'fenetre.otmatech.ca',
+  'xn--fentre-kva.otmatech.ca' // fenêtre.otmatech.ca (avec accent)
+];
 
 var HEADERS = [
   'Timestamp',
