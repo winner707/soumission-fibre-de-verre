@@ -298,6 +298,24 @@
       bar2.classList.remove('is-on');
     });
 
+    /* ---------- Provenance du visiteur ----------
+       Écrite dans la colonne « Source » du Google Sheet pour comparer les canaux.
+       Priorité : utm_source/utm_campaign, puis identifiants de clic, puis site référent. */
+    function trafficSource() {
+      var q = new URLSearchParams(location.search);
+      var utm = q.get('utm_source');
+      if (utm) return [utm, q.get('utm_medium'), q.get('utm_campaign')].filter(Boolean).join(' / ');
+      if (q.get('gclid') || q.get('gbraid') || q.get('wbraid')) return 'google-ads';
+      if (q.get('fbclid')) return 'facebook';
+      if (q.get('ttclid')) return 'tiktok';
+      try {
+        var ref = document.referrer && new URL(document.referrer).hostname;
+        if (ref && ref !== location.hostname) return 'référent : ' + ref;
+      } catch (err) { /* référent illisible */ }
+      return 'direct';
+    }
+    var SOURCE = 'Landing Funnel · ' + trafficSource();
+
     /* ---------- Envoi ---------- */
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -311,7 +329,7 @@
         projectType: pickedValue('pickProject'),
         quantity:    pickedValue('pickQty'),
         message:     form.message.value.trim(),
-        source:      'Landing Funnel',
+        source:      SOURCE,
         language:    lang().toUpperCase(),
         pageUrl:     location.href,
         website:     form.website.value
